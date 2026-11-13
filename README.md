@@ -18,3 +18,7 @@ Data is stored in the browser on each device (localStorage). Use **Settings → 
 
 Edit `index.html` and commit. GitHub Pages republishes automatically within a minute or two.
 When you change the app, also bump `VERSION` in `sw.js` (for example `nizam-v2`) so installed copies on phones pick up the new version.
+
+## Reports
+
+**Summary → Monthly report** opens a printable report for any month (totals, time per day, spheres, top activities, checklist). Press **Download PDF** and choose "Save as PDF" in the print window.
