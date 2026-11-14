@@ -1,13 +1,13 @@
 // Nizam service worker: makes the app open offline.
 // Bump VERSION whenever you change index.html so phones pick up the new version.
-const VERSION = "nizam-v7";
+const VERSION = "nizam-v8";
 const CORE = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/apple-touch-icon.png"
+  "./icons/icon-192-v2.png",
+  "./icons/icon-512-v2.png",
+  "./icons/apple-touch-icon-v2.png"
 ];
 
 self.addEventListener("install", (e) => {
