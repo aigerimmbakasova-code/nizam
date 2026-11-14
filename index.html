@@ -110,12 +110,16 @@ details p{margin:12px 0 0 1.3em;line-height:1.75;max-width:62ch;color:color-mix(
 .shd button{background:transparent;color:var(--ac);padding:6px 4px;min-height:40px;font-size:1rem}
 .stit{display:flex;align-items:center;gap:10px;font:500 1.9rem/1.2 var(--serif);margin-top:6px}.stit .dot{margin:0}
 .stot{font:500 2.4rem/1.1 var(--serif);margin:2px 0 16px}
-.sent{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--c,var(--bd));border-radius:14px;padding:12px;margin-bottom:10px}
+.sent{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--c,var(--bd));border-radius:12px;padding:8px;margin-bottom:8px}
 #sphI .sent{border-left-color:var(--c)}
-.sent input{font-weight:600;padding:10px 12px}
-.sm{display:flex;justify-content:space-between;align-items:center;margin:8px 2px;color:var(--mut);font-size:.9rem}.sm b{color:var(--fg);font-size:1.05rem}
-.sadj{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.sadj button{background:transparent;border:1px solid var(--bd);padding:8px 0}
-.sdel{width:100%;margin-top:8px;background:transparent;color:var(--red);min-height:38px;font-size:.88rem}.sdel.arm{background:var(--red);color:#fff}
+.srow{display:grid;grid-template-columns:40px 36px minmax(0,1fr) 36px 40px;gap:4px;align-items:center}
+.srow>button{min-height:40px;padding:0;font-size:.78rem;font-weight:600;background:transparent;border:1px solid var(--bd);border-radius:8px;color:var(--mut)}
+.smid{min-width:0;text-align:center}
+.smid input{font-size:.88rem;font-weight:600;text-align:center;padding:4px 6px;border:1px solid transparent;background:transparent;border-radius:6px;text-overflow:ellipsis}
+.smid input:focus{border-color:var(--bd);background:var(--bg)}
+.sm{display:flex;justify-content:center;gap:8px;align-items:baseline;color:var(--mut);font-size:.74rem;margin-top:1px}.sm b{color:var(--fg);font-size:.82rem}
+.sdel{display:block;margin:6px auto 0;background:transparent;color:var(--red);min-height:28px;padding:2px 12px;font-size:.74rem;font-weight:600;border-radius:8px}.sdel.arm{background:var(--red);color:#fff}
+.srun .sm{justify-content:space-between;font-size:.85rem;margin:4px 6px}
 .srun{border-style:dashed}
 .odots{display:flex;gap:5px;margin:10px 0 4px}.odots i{flex:1;height:4px;border-radius:2px;background:var(--fill)}.odots i.on{background:var(--ac)}
 .oq{font:500 1.45rem/1.25 var(--serif);margin:14px 0 12px}
@@ -523,7 +527,7 @@ function openSph(i){SPH=i;sDel=null;drawSph();$("sph").classList.remove("hide");
 function closeSph(fromPop){if(SPH<0)return;SPH=-1;sDel=null;$("sph").classList.add("hide");document.body.style.overflow="";if(!fromPop){try{if(history.state&&history.state.sph)history.back()}catch(e){}}render()}
 window.addEventListener("popstate",function(){if(SPH>=0)closeSph(true)});
 function drawSph(){if(SPH<0)return;var t=T[L],x=SX(),it=sphItems(),live=run&&run.s===SPH?el():0,sum=it.reduce(function(a,e){return a+e.m},0)+live;
-var rows=it.map(function(e){var k=data.indexOf(e);return '<div class="sent s'+SPH+'"><input data-n="'+k+'" type="text" maxlength="40" placeholder="'+ea(x.ph)+'" value="'+ea(e.a||"")+'"><div class="sm"><span>'+hm(es(e))+' – '+hm(e.t)+'</span><b>'+fc(e.m)+'</b></div><div class="sadj"><button data-j="-15" data-n="'+k+'">−15</button><button data-j="-1" data-n="'+k+'">−1</button><button data-j="1" data-n="'+k+'">+1</button><button data-j="15" data-n="'+k+'">+15</button></div><button class="sdel'+(sDel===e?' arm':'')+'" data-x="'+k+'">'+(sDel===e?x.del2:x.del)+'</button></div>'}).join("");
+var rows=it.map(function(e){var k=data.indexOf(e),bj=function(j,l){return '<button data-j="'+j+'" data-n="'+k+'">'+l+'</button>'};return '<div class="sent s'+SPH+'"><div class="srow">'+bj(-15,"−15")+bj(-1,"−1")+'<div class="smid"><input data-n="'+k+'" type="text" maxlength="40" placeholder="'+ea(x.ph)+'" value="'+ea(e.a||"")+'"><div class="sm"><span>'+hm(es(e))+'–'+hm(e.t)+'</span><b>'+fc(e.m)+'</b></div></div>'+bj(1,"+1")+bj(15,"+15")+'</div><button class="sdel'+(sDel===e?' arm':'')+'" data-x="'+k+'">'+(sDel===e?x.del2:x.del)+'</button></div>'}).join("");
 $("sphI").innerHTML='<div class="shd"><button id="sBack" aria-label="'+ea(x.back)+'">‹ '+x.back+'</button></div><div class="s'+SPH+' stit"><i class="dot" style="background:var(--c);width:12px;height:12px"></i>'+esc(t.s[SPH])+'</div><div class="mut" style="margin-top:14px">'+x.today+'</div><div class="stot">'+fc(sum)+'</div>'
 +(live?'<div class="sent srun s'+SPH+'"><div class="sm"><span>'+x.run+'</span><b>'+fc(live)+'</b></div></div>':'')
 +(rows||(live?'':'<p class="mut" style="margin:18px 0">'+t.none+'</p>'))
