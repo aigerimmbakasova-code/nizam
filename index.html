@@ -612,6 +612,9 @@ $("fsFile").onchange=function(){var f=this.files[0];if(!f)return;var im=new Imag
 function hideFS(){$("fs").classList.add("hide");try{screen.orientation.unlock()}catch(e){}try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}}
 function openFS(){$("fs").classList.remove("hide");$("fsPop").classList.add("hide");applyBG();try{var de=document.documentElement;if(de.requestFullscreen){var rq=de.requestFullscreen();if(rq&&rq.then)rq.then(function(){try{screen.orientation.lock("landscape").catch(function(){})}catch(e){}}).catch(function(){})}}catch(e){}try{if(navigator.wakeLock)navigator.wakeLock.request("screen").catch(function(){})}catch(e){}last="";paint()}
 $("fsBtn").onclick=openFS;
+function leaveFS(){if($("fs").classList.contains("hide"))return;hideFS();if(tab!==0)setTab(0);else render()}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!$("fs").classList.contains("hide")){e.preventDefault();leaveFS()}});
+["fullscreenchange","webkitfullscreenchange"].forEach(function(ev){document.addEventListener(ev,function(){if(!(document.fullscreenElement||document.webkitFullscreenElement))leaveFS()})});
 $("fsClose").onclick=function(){$("fs").classList.add("hide");try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}};
 $("fsMenu").onclick=function(){$("fsPop").classList.toggle("hide")};$("fsClock").onclick=function(){$("fsPop").classList.add("hide")};
 function adopt(x){data=x.d||[];noArt=x.x?1:0;if(x.o)PRF=x.o;run=x.r||null;pend=x.p||null;if(x.b!=null)bgi=x.b;U=x.u||0;if(x.h)BASE=x.h;if(x.g!=null)G=x.g;CEL=x.c||CEL;if(!run)audio(false);lsave();applyBG();render();ms()}
