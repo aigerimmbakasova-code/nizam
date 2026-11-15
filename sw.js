@@ -1,6 +1,6 @@
 // Nizam service worker: makes the app open offline.
 // Bump VERSION whenever you change index.html so phones pick up the new version.
-const VERSION = "nizam-v34";
+const VERSION = "nizam-v35";
 const CORE = [
   "./",
   "./index.html",
