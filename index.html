@@ -316,16 +316,18 @@ function vis(e){return !(noArt&&e.s===4)}
 function tot(i,p){if(noArt&&i===4)return 0;var st=start(p);return data.reduce(function(a,e){return a+(e.s===i&&es(e)>=st?e.m:0)},0)}
 function vals(p){return [0,1,2,3,4].map(function(i){return (noArt&&i===4)?0:tot(i,p)+(run&&run.s===i?el():0)})}
 var last="";
-function paint(){if(!run)return;var c=clk(el());if(c===last)return;last=c;updGoal();if(tab===0)ring();$("clock").innerHTML=ck(c);$("fsClock").innerHTML=ck(c);document.title=c+" · Nizam"}
+function paint(){if(!run)return;var c=clk(el());if(c===last)return;last=c;updGoal();if(tab===0)ring();$("clock").innerHTML=ck(c);$("fsClock").innerHTML=ck(c);document.title=c+" · Nizam";if(run.seg&&Math.floor(el()/3600)!==msH)ms()}
 function startTick(){clearInterval(tick);tick=setInterval(paint,250);last="";paint()}
 function silent(){var n=8000,b=new ArrayBuffer(44+n),v=new DataView(b),i;function w(o,s){for(var k=0;k<s.length;k++)v.setUint8(o+k,s.charCodeAt(k))}
 w(0,"RIFF");v.setUint32(4,36+n,true);w(8,"WAVEfmt ");v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,8000,true);v.setUint32(28,8000,true);v.setUint16(32,1,true);v.setUint16(34,8,true);w(36,"data");v.setUint32(40,n,true);
 for(i=0;i<n;i++)v.setUint8(44+i,128);var u=new Uint8Array(b),s="";for(i=0;i<u.length;i++)s+=String.fromCharCode(u[i]);return"data:audio/wav;base64,"+btoa(s)}
 function audio(on){try{if(!au){au=new Audio(silent());au.loop=true}if(on)au.play().catch(function(){});else au.pause()}catch(e){}}
-function ms(){if(!("mediaSession" in navigator))return;var M=navigator.mediaSession;try{if(!run){M.metadata=null;M.playbackState="none";return}var t=T[L];
-M.metadata=new MediaMetadata({title:t.s[run.s],artist:clk(el()),album:t.ttl});M.playbackState=run.seg?"playing":"paused";
-M.setPositionState({duration:86400,position:Math.min(el(),86399),playbackRate:run.seg?1:0.01})}catch(e){}}
-try{var MS=navigator.mediaSession;MS.setActionHandler("play",function(){if(run&&!run.seg)toggle()});MS.setActionHandler("pause",function(){if(run&&run.seg)toggle()});MS.setActionHandler("stop",function(){askStop()});MS.setActionHandler("seekbackward",function(){adj(-15)});MS.setActionHandler("seekforward",function(){adj(15)})}catch(e){}
+var msH=-1;function msArt(){var u=function(p){try{return new URL(p,location.href).href}catch(e){return p}};return [{src:u("icons/icon-192-v5.png"),sizes:"192x192",type:"image/png"},{src:u("icons/icon-512-v5.png"),sizes:"512x512",type:"image/png"}]}
+function ms(){if(!("mediaSession" in navigator))return;var M=navigator.mediaSession;try{if(!run){M.metadata=null;M.playbackState="none";msH=-1;try{M.setPositionState()}catch(e){}return}var t=T[L],e=el();
+M.metadata=new MediaMetadata({title:t.s[run.s],artist:"Nizam · "+t.nav[0],album:"Nizam",artwork:msArt()});M.playbackState=run.seg?"playing":"paused";
+msH=Math.floor(e/3600);M.setPositionState({duration:(msH+1)*3600,position:Math.min(e,(msH+1)*3600-1),playbackRate:1})}catch(x){}}
+try{var MS=navigator.mediaSession;MS.setActionHandler("play",function(){if(run&&!run.seg)toggle()});MS.setActionHandler("pause",function(){if(run&&run.seg)toggle()});MS.setActionHandler("stop",function(){askStop()});["seekbackward","seekforward","seekto","previoustrack","nexttrack"].forEach(function(a){try{MS.setActionHandler(a,null)}catch(e){}})}catch(e){}
+
 function toggle(){if(!run)return;if(run.seg){run.acc+=Date.now()-run.seg;run.seg=null}else run.seg=Date.now();save();render();ms()}
 function adj(m){if(!run)return;run.acc=Math.max(0,tms()+m*60000);if(run.seg)run.seg=Date.now();save();last="";paint();ms()}
 var conf=false;
