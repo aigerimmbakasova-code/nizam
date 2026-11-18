@@ -558,8 +558,71 @@ var cv="c",aQ="",scrollK=true,scrollM=true,cf=-1,tlFh=8;
 function ea(x){return esc(x).replace(/"/g,"&quot;")}
 function dfull(ts){var d=new Date(ts);return L==="ky"?d.getDate()+" "+KM[d.getMonth()]+" "+d.getFullYear():d.toLocaleDateString(loc(),{day:"numeric",month:"long",year:"numeric"})}
 function dshort(ts){var d=new Date(ts);return L==="ky"?d.getDate()+" "+KM[d.getMonth()].slice(0,3)+" "+String(d.getFullYear()).slice(2):d.toLocaleDateString(loc(),{day:"numeric",month:"short",year:"2-digit"})}
-function groupActs(){var g={};data.forEach(function(e){if(!e.a||!vis(e))return;var k=e.a.toLowerCase().trim(),o=g[k]||(g[k]={k:k,names:{},sc:[0,0,0,0,0],tot:0,n:0,first:Infinity,last:0,days:{},max:0}),s=es(e),dy=sod(s);
-o.names[e.a]=(o.names[e.a]||0)+1;o.sc[e.s]++;o.tot+=e.m;o.n++;o.first=Math.min(o.first,s);o.last=Math.max(o.last,e.t);o.days[dy]=(o.days[dy]||0)+e.m;o.max=Math.max(o.max,e.m)});
+var ACTD=[
+[0,"Reading Quran","Чтение Корана","Kur’an okuma","Куран окуу","Quran","Quran reading","Коран","Куран","Kuran","Kur'an","Kuran okuma","Kuran oku","Куран окуу"],
+[0,"Prayer","Намаз","Namaz","Намаз","Salah","Salat","Молитва","Намаз окуу","Namaz kılma"],
+[0,"Dhikr","Зикр","Zikir","Зикир","Zikr","Thikr"],
+[0,"Reflection","Размышление","Tefekkür","Ой жүгүртүү","Тафаккур","Tafakkur","Contemplation"],
+[0,"Memorizing Quran","Заучивание Корана","Kur’an ezberi","Куран жаттоо","Хифз","Hifz","Hıfz","Ezber","Hafızlık"],
+[0,"Tafsir","Тафсир","Tefsir","Тафсир"],
+[0,"Hadith","Хадисы","Hadis","Хадис","Hadis okuma","Хадис","Hadith study"],
+[0,"Tajweed","Таджвид","Tecvid","Тажвид","Tajwid","Таджуид"],
+[0,"Dua","Дуа","Dua","Дуба","Du'a"],
+[0,"Seerah","Сира","Siyer","Сира","Sirah"],
+[0,"Islamic lecture","Исламская лекция","Sohbet","Исламий сабак","Sohbet dinleme","Dars","Урок по исламу"],
+[0,"Islamic studies","Исламские знания","İslami ilimler","Исламий илим","Islamic knowledge","Diniyat"],
+[1,"Running","Бег","Koşu","Чуркоо","Run","Jogging","Пробежка"],
+[1,"Workout","Воркаут","Antrenman","Машыгуу","Тренировка","Training","Exercise","Egzersiz","Упражнения"],
+[1,"Stretching","Растяжка","Esneme","Чоюлуу","Stretch"],
+[1,"Walking","Прогулка","Yürüyüş","Сейилдөө","Walk","Ходьба"],
+[1,"Gym","Спортзал","Spor salonu","Спорт зал","Зал","Тренажёрный зал","Fitness"],
+[1,"Swimming","Плавание","Yüzme","Сүзүү","Swim","Бассейн"],
+[1,"Yoga","Йога","Yoga","Йога"],
+[1,"Cycling","Велосипед","Bisiklet","Велосипед тебүү","Bike","Biking"],
+[1,"Football","Футбол","Futbol","Футбол","Soccer"],
+[1,"Basketball","Баскетбол","Basketbol","Баскетбол"],
+[1,"Volleyball","Волейбол","Voleybol","Волейбол"],
+[2,"Studying","Учёба","Ders çalışma","Сабак окуу","Study","Учеба","Ders","Учиться"],
+[2,"Homework","Домашка","Ödev","Үй тапшырма","Домашнее задание","Домашняя работа","Homework assignment"],
+[2,"Reading","Чтение","Okuma","Китеп окуу","Reading books","Book reading","Kitap okuma","Чтение книг","Книга","Kitap"],
+[2,"Coding","Программирование","Kodlama","Программалоо","Programming","Yazılım","Код"],
+[2,"English","Английский","İngilizce","Англис тили","English language","Английский язык","Ingilizce"],
+[2,"Arabic","Арабский","Arapça","Араб тили","Arabic language","Арабский язык"],
+[2,"Turkish","Турецкий","Türkçe","Түрк тили","Turkish language","Турецкий язык"],
+[2,"Russian","Русский язык","Rusça","Орус тили","Russian language"],
+[2,"Math","Математика","Matematik","Математика","Maths","Mathematics"],
+[2,"Lecture","Лекция","Ders dinleme","Лекция","Class","Пара","Lesson"],
+[2,"Exam prep","Подготовка к экзамену","Sınav hazırlığı","Сынакка даярдануу","Exam preparation","Подготовка к экзаменам"],
+[2,"Online course","Онлайн-курс","Online kurs","Онлайн курс","Онлайн курс","Course","Курс","Kurs"],
+[2,"Research","Исследование","Araştırma","Изилдөө"],
+[2,"Language learning","Изучение языка","Dil öğrenme","Тил үйрөнүү","Languages","Языки"],
+[3,"Family","Семья","Aile","Үй-бүлө","Family time","Время с семьёй"],
+[3,"Friends","Друзья","Arkadaşlar","Достор","Time with friends"],
+[3,"Volunteering","Волонтёрство","Gönüllülük","Ыктыярчылык","Волонтерство","Volunteer"],
+[3,"Networking","Нетворкинг","Ağ kurma","Таанышуу"],
+[3,"Visiting relatives","Визит к родственникам","Akraba ziyareti","Тууган-урукка баруу","Сила рахим","Sıla-i rahim","Родственники"],
+[3,"Helping parents","Помощь родителям","Anne babaya yardım","Ата-энеге жардам","Parents","Родители"],
+[3,"Phone call","Звонок","Telefon görüşmesi","Телефон чалуу","Call","Созвон"],
+[3,"Meeting","Встреча","Buluşma","Жолугушуу"],
+[4,"Drawing","Рисование","Çizim","Сүрөт тартуу","Draw"],
+[4,"Music","Музыка","Müzik","Музыка"],
+[4,"Crafts","Рукоделие","El işi","Колдон жасоо","Handicraft"],
+[4,"Writing","Письмо","Yazı","Жазуу","Yazı yazma"],
+[4,"Calligraphy","Каллиграфия","Hat","Каллиграфия","Hat sanatı"],
+[4,"Photography","Фотография","Fotoğrafçılık","Сүрөткө тартуу","Фото"],
+[4,"Design","Дизайн","Tasarım","Дизайн"],
+[4,"Painting","Живопись","Resim","Живопись"],
+[4,"Sewing","Шитьё","Dikiş","Тигүү","Шитье"],
+[4,"Knitting","Вязание","Örgü","Токуу"],
+[4,"Poetry","Стихи","Şiir","Ыр жазуу","Поэзия"]];
+var ALI={en:1,ru:2,tr:3,ky:4},AID={};
+function anorm(a){return String(a||"").toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g,"").replace(/ı/g,"i").replace(/[’'`ʼ"«».,!?()\-–—_:;]/g," ").replace(/\s+/g," ").trim()}
+ACTD.forEach(function(r,i){for(var j=1;j<r.length;j++){var k=anorm(r[j]);if(k&&AID[k]==null)AID[k]=i}});
+function aId(a){var k=anorm(a);return k&&AID[k]!=null?AID[k]:null}
+function aName(a){if(!a)return a;var i=aId(a);return i==null?a:ACTD[i][ALI[L]||1]}
+function aKey(a){var i=aId(a);return i==null?"~"+anorm(a):"#"+i}
+function groupActs(){var g={};data.forEach(function(e){if(!e.a||!vis(e))return;var k=aKey(e.a),o=g[k]||(g[k]={k:k,names:{},sc:[0,0,0,0,0],tot:0,n:0,first:Infinity,last:0,days:{},max:0}),s=es(e),dy=sod(s);
+var an=aName(e.a);o.names[an]=(o.names[an]||0)+1;o.sc[e.s]++;o.tot+=e.m;o.n++;o.first=Math.min(o.first,s);o.last=Math.max(o.last,e.t);o.days[dy]=(o.days[dy]||0)+e.m;o.max=Math.max(o.max,e.m)});
 return Object.keys(g).map(function(k){var o=g[k],si=0;o.name=Object.keys(o.names).sort(function(a,b){return o.names[b]-o.names[a]})[0];o.sc.forEach(function(v,i){if(v>o.sc[si])si=i});o.s=si;return o}).sort(function(a,b){return b.tot-a.tot})}
 function monthNav(){return '<div class="nv"><button data-a="mp">◀</button><b data-a="mt">'+mlab(new Date(mon))+'</b><button data-a="mn">▶</button></div>'}
 var CZ=[3.5,5,7,10],calZ=(function(){try{var v=localStorage.getItem("hmz");if(v!==null&&CZ[+v])return +v}catch(e){}return innerWidth<700?1:3})();
@@ -578,9 +641,9 @@ it=data.filter(function(e){return vis(e)&&es(e)<d1&&e.t>d0}).sort(function(a,b){
 it.forEach(function(e){var s=es(e),k=0;while(ln[k]&&ln[k]>s)k++;ln[k]=e.t;pl.push({e:e,l:k});sum+=Math.min(e.t,d1)-Math.max(s,d0)});
 var n=Math.max(1,ln.length),b="";
 for(q=0;q<24;q++)b+='<div class="hl" style="top:'+q*H+'px"><span>'+pad(q)+':00</span></div>';
-pl.forEach(function(x){var e=x.e,s=Math.max(es(e),d0),f=Math.min(e.t,d1);b+='<div class="blk s'+e.s+'" data-i="'+data.indexOf(e)+'" style="top:'+(s-d0)/36e5*H+'px;height:'+Math.max((f-s)/36e5*H,16)+'px;left:'+x.l*100/n+'%;width:calc('+100/n+'% - 2px)">'+t.ic[e.s]+esc(e.a||t.s[e.s])+" · "+fc(e.m)+'</div>'});
+pl.forEach(function(x){var e=x.e,s=Math.max(es(e),d0),f=Math.min(e.t,d1);b+='<div class="blk s'+e.s+'" data-i="'+data.indexOf(e)+'" style="top:'+(s-d0)/36e5*H+'px;height:'+Math.max((f-s)/36e5*H,16)+'px;left:'+x.l*100/n+'%;width:calc('+100/n+'% - 2px)">'+t.ic[e.s]+esc(aName(e.a)||t.s[e.s])+" · "+fc(e.m)+'</div>'});
 if(now>=d0&&now<d1)b+='<div class="now" style="top:'+(now-d0)/36e5*H+'px"></div>';
-var sp="";if(selE&&data.indexOf(selE)>-1){var e=selE;sp='<div class="panel" id="selp" style="margin-top:8px;text-align:left"><b>'+t.ic[e.s]+t.s[e.s]+(e.a?" · "+esc(e.a):"")+'</b><div class="mut">'+hm(es(e))+" – "+hm(e.t)+" · "+fc(e.m)+'</div><button data-a="d" style="width:100%;margin-top:8px">'+t.del+'</button></div>'}
+var sp="";if(selE&&data.indexOf(selE)>-1){var e=selE;sp='<div class="panel" id="selp" style="margin-top:8px;text-align:left"><b>'+t.ic[e.s]+t.s[e.s]+(e.a?" · "+esc(aName(e.a)):"")+'</b><div class="mut">'+hm(es(e))+" – "+hm(e.t)+" · "+fc(e.m)+'</div><button data-a="d" style="width:100%;margin-top:8px">'+t.del+'</button></div>'}
 tlFh=it.length?(Math.max(es(it[0]),d0)-d0)/36e5:new Date().getHours();
 var dh='<div class="nv"><button data-a="dp">◀</button><b data-a="dt">'+dlab(d0)+'</b><button data-a="dn">▶</button></div><div class="mut" style="text-align:center;margin-top:4px">'+hijri(d0)+" · "+t.total+": "+fc(Math.round(sum/1000))+(it.length?"":" · "+t.none)+'</div><div id="tl"><div id="tli" style="height:'+24*H+'px">'+b+'</div></div>'+sp;
 return mcard+tcard+'<div class="sh">'+t.day+'</div><div class="card">'+dh+'</div>'}
@@ -616,7 +679,7 @@ ky:{pg:"Прогрессиңиз",tm:"Бул айда",vs:"өткөн айга �
 function RT(){return RP[L]||RP.en}
 function monthStats(y,mo){var dim=new Date(y,mo+1,0).getDate(),bd=[],sp=[0,0,0,0,0],sc=[0,0,0,0,0],ac={},i;for(i=0;i<dim;i++)bd.push(0);
 data.forEach(function(e){if(!vis(e))return;var d=new Date(es(e));if(d.getFullYear()!==y||d.getMonth()!==mo)return;bd[d.getDate()-1]+=e.m;sp[e.s]+=e.m;sc[e.s]++;
-if(e.a){var k=e.a.toLowerCase().trim(),o=ac[k]||(ac[k]={name:e.a,s:e.s,m:0,n:0,days:{}});o.m+=e.m;o.n++;o.days[d.getDate()]=1}});
+if(e.a){var k=aKey(e.a),o=ac[k]||(ac[k]={name:aName(e.a),s:e.s,m:0,n:0,days:{}});o.m+=e.m;o.n++;o.days[d.getDate()]=1}});
 var tot=bd.reduce(function(a,b){return a+b},0),act=bd.filter(function(v){return v>0}).length,best=0,bi=-1,st=0,ls=0;
 bd.forEach(function(v,j){if(v>best){best=v;bi=j}if(v>0){st++;if(st>ls)ls=st}else st=0});
 return{y:y,mo:mo,dim:dim,bd:bd,sp:sp,sc:sc,tot:tot,act:act,best:best,bi:bi,ls:ls,acts:Object.keys(ac).map(function(k){return ac[k]}).sort(function(a,b){return b.m-a.m})}}
@@ -708,7 +771,7 @@ function openSph(i){SPH=i;sDel=null;drawSph();$("sph").classList.remove("hide");
 function closeSph(fromPop){if(SPH<0)return;SPH=-1;sDel=null;$("sph").classList.add("hide");document.body.style.overflow="";if(!fromPop){try{if(history.state&&history.state.sph)history.back()}catch(e){}}render()}
 window.addEventListener("popstate",function(){if(SPH>=0)closeSph(true)});
 function drawSph(){if(SPH<0)return;var t=T[L],x=SX(),it=sphItems(),live=run&&run.s===SPH?el():0,sum=it.reduce(function(a,e){return a+e.m},0)+live;
-var rows=it.map(function(e){var k=data.indexOf(e),bj=function(j,l){return '<button data-j="'+j+'" data-n="'+k+'">'+l+'</button>'};return '<div class="sent s'+SPH+'"><div class="srow">'+bj(-15,"−15")+bj(-1,"−1")+'<div class="smid"><input data-n="'+k+'" type="text" maxlength="40" placeholder="'+ea(x.ph)+'" value="'+ea(e.a||"")+'"><div class="sm"><span>'+hm(es(e))+'–'+hm(e.t)+'</span><b>'+fc(e.m)+'</b></div></div>'+bj(1,"+1")+bj(15,"+15")+'</div><button class="sdel'+(sDel===e?' arm':'')+'" data-x="'+k+'">'+(sDel===e?x.del2:x.del)+'</button></div>'}).join("");
+var rows=it.map(function(e){var k=data.indexOf(e),bj=function(j,l){return '<button data-j="'+j+'" data-n="'+k+'">'+l+'</button>'};return '<div class="sent s'+SPH+'"><div class="srow">'+bj(-15,"−15")+bj(-1,"−1")+'<div class="smid"><input data-n="'+k+'" type="text" maxlength="40" placeholder="'+ea(x.ph)+'" value="'+ea(aName(e.a)||"")+'"><div class="sm"><span>'+hm(es(e))+'–'+hm(e.t)+'</span><b>'+fc(e.m)+'</b></div></div>'+bj(1,"+1")+bj(15,"+15")+'</div><button class="sdel'+(sDel===e?' arm':'')+'" data-x="'+k+'">'+(sDel===e?x.del2:x.del)+'</button></div>'}).join("");
 $("sphI").innerHTML='<div class="shd"><button id="sBack" aria-label="'+ea(x.back)+'">‹ '+x.back+'</button></div><div class="s'+SPH+' stit"><i class="dot" style="background:var(--c);width:12px;height:12px"></i>'+esc(t.s[SPH])+'</div><div class="mut" style="margin-top:14px">'+x.today+'</div><div class="stot">'+fc(sum)+'</div>'
 +(live?'<div class="sent srun s'+SPH+'"><div class="sm"><span>'+x.run+'</span><b>'+fc(live)+'</b></div></div>':'')
 +(rows||(live?'':'<p class="mut" style="margin:18px 0">'+t.none+'</p>'))
@@ -718,7 +781,7 @@ if(b.id==="sBack"){closeSph();return}
 if(b.id==="sStart"){var i=SPH;closeSph();pendS=i;$("msg").textContent="";render();return}
 var e;if(b.dataset.j){e=data[+b.dataset.n];if(!e)return;var lim=Math.floor((e.t-start("day"))/1000),m=Math.max(60,Math.min(e.m+(+b.dataset.j)*60,lim));e.m=m;sDel=null;save();drawSph();render();return}
 if(b.dataset.x){e=data[+b.dataset.x];if(!e)return;if(sDel!==e){sDel=e;drawSph();return}data.splice(data.indexOf(e),1);sDel=null;save();drawSph();render()}};
-$("sph").addEventListener("change",function(ev){var n=ev.target.dataset.n;if(n==null||ev.target.tagName!=="INPUT")return;var e=data[+n];if(!e)return;var v=ev.target.value.trim();if(v)e.a=v;else delete e.a;save();render()});
+$("sph").addEventListener("change",function(ev){var n=ev.target.dataset.n;if(n==null||ev.target.tagName!=="INPUT")return;var e=data[+n];if(!e)return;var v=ev.target.value.trim();if(v&&v===aName(e.a))return;if(v)e.a=v;else delete e.a;save();render()});
 $("sph").addEventListener("keydown",function(ev){if(ev.key==="Enter"&&ev.target.tagName==="INPUT")ev.target.blur();if(ev.key==="Escape")closeSph()});
 
 $("sNo").onclick=function(){pendS=-1;render()};
@@ -729,15 +792,15 @@ $("discard").onclick=function(){conf=false;run=null;audio(false);save();$("msg")
 $("lang").onclick=function(){L={en:"ru",ru:"tr",tr:"ky",ky:"en"}[L];save();$("msg").textContent="";render();ms()};
 document.addEventListener("click",function(){if(run&&run.seg&&au&&au.paused)audio(true)});
 document.addEventListener("visibilitychange",function(){if(!document.hidden){last="";paint();ms()}});
-function sugg(s,q){var c={};T[L].pre[s].forEach(function(x){c[x]=0});data.forEach(function(e){if(e.s===s&&e.a&&(e.g||(/[А-Яа-яЁё]/.test(e.a)?"ru":"en"))===L)c[e.a]=(c[e.a]||0)+1});
+function sugg(s,q){var c={};T[L].pre[s].forEach(function(x){c[x]=0});data.forEach(function(e){if(e.s===s&&e.a){var n=aName(e.a);c[n]=(c[n]||0)+1}});
 q=(q||"").toLowerCase();return Object.keys(c).filter(function(k){return k.toLowerCase().indexOf(q)>-1}).sort(function(a,b){return c[b]-c[a]}).slice(0,8)}
 function chips(){var d=$("aChips");d.innerHTML="";sugg(pend.s,$("aIn").value).forEach(function(k){var b=document.createElement("button");b.textContent=k;b.onclick=function(){fin(k)};d.appendChild(b)})}
 function drawAsk(){var t=T[L];$("aName").innerHTML=t.ic[pend.s]+" "+t.s[pend.s]+" · "+fmt(pend.m);$("aQ").textContent=t.ask;$("aIn").placeholder=t.ph;$("aSave").textContent=t.save;$("aSkip").textContent=t.skip;chips()}
 function fin(a){if(!pend)return;data.push({t:Date.now(),s:pend.s,m:pend.m,a:(a||"").trim(),g:L});pend=null;$("aIn").value="";save();$("msg").textContent=T[L].saved+" ✓";render()}
 $("aIn").oninput=chips;$("aIn").onkeydown=function(e){if(e.key==="Enter")fin($("aIn").value)};
 $("aSave").onclick=function(){fin($("aIn").value)};$("aSkip").onclick=function(){fin("")};
-function acts(){var c={},st=start(P);data.forEach(function(e){if(e.a&&es(e)>=st){var k=e.s+"|"+e.a;c[k]=(c[k]||0)+e.m}});var ks=Object.keys(c).sort(function(a,b){return c[b]-c[a]}).slice(0,6);
-if(!ks.length)return"";return '<div style="margin-top:12px;border-top:1px solid rgba(127,127,127,.2);padding-top:8px">'+ks.map(function(x){var j=x.indexOf("|");return '<div class="leg mut"><span>'+T[L].ic[+x.slice(0,j)]+esc(x.slice(j+1))+'</span><b>'+fc(c[x])+'</b></div>'}).join("")+"</div>"}
+function acts(){var c={},nm={},st=start(P);data.forEach(function(e){if(e.a&&es(e)>=st){var k=e.s+"|"+aKey(e.a);c[k]=(c[k]||0)+e.m;nm[k]=aName(e.a)}});var ks=Object.keys(c).sort(function(a,b){return c[b]-c[a]}).slice(0,6);
+if(!ks.length)return"";return '<div style="margin-top:12px;border-top:1px solid rgba(127,127,127,.2);padding-top:8px">'+ks.map(function(x){var j=x.indexOf("|");return '<div class="leg mut"><span>'+T[L].ic[+x.slice(0,j)]+esc(nm[x])+'</span><b>'+fc(c[x])+'</b></div>'}).join("")+"</div>"}
 /* manual entry */
 function iso(t){var d=new Date(t);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"T"+pad(d.getHours())+":"+pad(d.getMinutes())}
 function mChips(){var d=$("mCh");d.innerHTML="";sugg(mS,$("mAct").value).forEach(function(k){var b=document.createElement("button");b.textContent=k;b.onclick=function(){$("mAct").value=k;mChips()};d.appendChild(b)})}
