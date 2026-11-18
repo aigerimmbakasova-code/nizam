@@ -1,10 +1,12 @@
 // Nizam service worker: makes the app open offline.
 // Bump VERSION whenever you change index.html so phones pick up the new version.
-const VERSION = "nizam-v39";
+const VERSION = "nizam-v40";
 const CORE = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./vendor/supabase-2.118.0.js",
+  "./privacy.html",
   "./icons/icon-192-v5.png",
   "./icons/icon-512-v5.png",
   "./icons/apple-touch-icon-v5.png"
