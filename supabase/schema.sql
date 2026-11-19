@@ -39,7 +39,20 @@ create table if not exists public.user_settings (
   updated_at  timestamptz not null default clock_timestamp()
 );
 
--- 4) Admins: who may see the statistics page
+-- 4) Notes: short dated notes, optionally tied to a sphere
+create table if not exists public.notes (
+  id          text primary key,
+  user_id     uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  sphere      smallint check (sphere between 0 and 4),
+  day         date not null,
+  body        text not null default '' check (char_length(body) <= 5000),
+  deleted     boolean not null default false,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default clock_timestamp()
+);
+create index if not exists notes_user_updated on public.notes (user_id, updated_at);
+
+-- 5) Admins: who may see the statistics page
 create table if not exists public.admins (
   user_id uuid primary key references auth.users(id) on delete cascade
 );
@@ -51,6 +64,9 @@ language plpgsql as $$ begin new.updated_at := clock_timestamp(); return new; en
 drop trigger if exists entries_touch on public.entries;
 create trigger entries_touch before insert or update on public.entries
   for each row execute function public.touch_updated_at();
+drop trigger if exists notes_touch on public.notes;
+create trigger notes_touch before insert or update on public.notes
+  for each row execute function public.touch_updated_at();
 drop trigger if exists settings_touch on public.user_settings;
 create trigger settings_touch before insert or update on public.user_settings
   for each row execute function public.touch_updated_at();
@@ -59,6 +75,7 @@ create trigger settings_touch before insert or update on public.user_settings
 alter table public.profiles      enable row level security;
 alter table public.entries       enable row level security;
 alter table public.user_settings enable row level security;
+alter table public.notes         enable row level security;
 alter table public.admins        enable row level security;
 
 drop policy if exists "own profile read"   on public.profiles;
@@ -81,11 +98,17 @@ drop policy if exists "own settings update" on public.user_settings;
 create policy "own settings read"   on public.user_settings for select to authenticated using (user_id = auth.uid());
 create policy "own settings insert" on public.user_settings for insert to authenticated with check (user_id = auth.uid());
 create policy "own settings update" on public.user_settings for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+drop policy if exists "own notes read"   on public.notes;
+drop policy if exists "own notes insert" on public.notes;
+drop policy if exists "own notes update" on public.notes;
+create policy "own notes read"   on public.notes for select to authenticated using (user_id = auth.uid());
+create policy "own notes insert" on public.notes for insert to authenticated with check (user_id = auth.uid());
+create policy "own notes update" on public.notes for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
 -- admins: no policies → nobody can read or change it from the app
 
 -- Table access for signed-in users only (anonymous visitors get nothing)
-revoke all on public.profiles, public.entries, public.user_settings, public.admins from anon, authenticated;
-grant select, insert, update on public.profiles, public.entries, public.user_settings to authenticated;
+revoke all on public.profiles, public.entries, public.notes, public.user_settings, public.admins from anon, authenticated;
+grant select, insert, update on public.profiles, public.entries, public.notes, public.user_settings to authenticated;
 
 -- Is the current user an admin?
 create or replace function public.is_admin() returns boolean
